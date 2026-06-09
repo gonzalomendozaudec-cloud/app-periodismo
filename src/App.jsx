@@ -78,6 +78,8 @@ const IconMapPin = () => <svg className="w-4 h-4 inline mr-1" fill="none" viewBo
 const IconAlert = () => <svg className="w-4 h-4 inline mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>;
 const IconSparkles = () => <svg className="w-4 h-4 inline mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" /></svg>;
 const IconLock = () => <svg className="w-4 h-4 inline mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>;
+const IconMenu = () => <svg className="w-5 h-5 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" /></svg>;
+const IconX = () => <svg className="w-5 h-5 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>;
 
 // --- GEMINI API INTEGRATION ---
 const apiKey = "";
@@ -129,6 +131,10 @@ export default function App() {
   // IA States
   const [aiInput, setAiInput] = useState("");
   const [isAiLoading, setIsAiLoading] = useState(false);
+
+  // Mobile States
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [activeDayTab, setActiveDayTab] = useState(-1); // -1 means all days / weekly view
 
   // --- CARGA DINÁMICA DE SUPABASE CDN ---
 
@@ -448,35 +454,49 @@ export default function App() {
   return (
     <div className="min-h-screen bg-[#050505] text-gray-300 font-mono flex flex-col selection:bg-cyan-900 selection:text-cyan-100">
       {/* TOP NAVIGATION TACTICAL BAR */}
-      <header className="h-16 border-b border-[#222] bg-[#0a0a0a] flex items-center justify-between px-6 shrink-0">
-        <div className="flex items-center gap-6">
-          <div className="flex items-center gap-2">
-            <div className="w-5 h-5 bg-cyan-500 rounded-sm grid place-items-center text-black font-bold text-xs">PU</div>
-            <h1 className="text-lg font-bold tracking-widest text-white">APP PERIODISMO UDEC <span className="text-cyan-500 text-sm opacity-50">// SUPABASE UPLINK</span></h1>
+      <header className="min-h-16 h-auto md:h-16 border-b border-[#222] bg-[#0a0a0a] flex flex-col md:flex-row md:items-center md:justify-between px-4 md:px-6 shrink-0 relative z-30">
+        <div className="flex flex-col md:flex-row md:items-center gap-0 md:gap-6 w-full md:w-auto">
+          {/* Logo & Hamburguer toggle */}
+          <div className="flex items-center justify-between w-full md:w-auto h-16 md:h-auto">
+            <div className="flex items-center gap-2">
+              <div className="w-5 h-5 bg-cyan-500 rounded-sm grid place-items-center text-black font-bold text-xs">PU</div>
+              <h1 className="text-sm md:text-lg font-bold tracking-widest text-white">
+                APP PERIODISMO UDEC <span className="text-cyan-500 text-[10px] md:text-sm opacity-50 hidden sm:inline">// SUPABASE UPLINK</span>
+              </h1>
+            </div>
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="md:hidden p-2 text-cyan-400 border border-cyan-500/30 bg-cyan-900/10 hover:text-white rounded-sm"
+            >
+              {mobileMenuOpen ? <IconX /> : <IconMenu />}
+            </button>
           </div>
-          <nav className="flex gap-4 ml-8 text-xs tracking-wider">
-            <button onClick={() => setCurrentView(VIEWS.SCHEDULER)} className={`px-3 py-1 border border-transparent transition-all ${currentView === VIEWS.SCHEDULER ? 'text-cyan-400 border-cyan-500/30 bg-cyan-900/10' : 'hover:text-white'}`}>HORARIO</button>
-            <button onClick={() => setCurrentView(VIEWS.ROOMS)} className={`px-3 py-1 border border-transparent transition-all ${currentView === VIEWS.ROOMS ? 'text-cyan-400 border-cyan-500/30 bg-cyan-900/10' : 'hover:text-white'}`}>SALAS</button>
-            <button onClick={() => setCurrentView(VIEWS.PERSONNEL)} className={`px-3 py-1 border border-transparent transition-all ${currentView === VIEWS.PERSONNEL ? 'text-cyan-400 border-cyan-500/30 bg-cyan-900/10' : 'hover:text-white'}`}>PERSONAL</button>
+
+          {/* Navigation Links */}
+          <nav className={`flex-col md:flex-row gap-2 md:gap-4 md:ml-8 text-xs tracking-wider pb-4 md:pb-0 md:flex ${mobileMenuOpen ? 'flex' : 'hidden'}`}>
+            <button onClick={() => { setCurrentView(VIEWS.SCHEDULER); setMobileMenuOpen(false); }} className={`px-3 py-2 md:py-1 text-left md:text-center border border-transparent transition-all ${currentView === VIEWS.SCHEDULER ? 'text-cyan-400 border-cyan-500/30 bg-cyan-900/10' : 'hover:text-white'}`}>HORARIO</button>
+            <button onClick={() => { setCurrentView(VIEWS.ROOMS); setMobileMenuOpen(false); }} className={`px-3 py-2 md:py-1 text-left md:text-center border border-transparent transition-all ${currentView === VIEWS.ROOMS ? 'text-cyan-400 border-cyan-500/30 bg-cyan-900/10' : 'hover:text-white'}`}>SALAS</button>
+            <button onClick={() => { setCurrentView(VIEWS.PERSONNEL); setMobileMenuOpen(false); }} className={`px-3 py-2 md:py-1 text-left md:text-center border border-transparent transition-all ${currentView === VIEWS.PERSONNEL ? 'text-cyan-400 border-cyan-500/30 bg-cyan-900/10' : 'hover:text-white'}`}>DOCENTES</button>
             {isAdmin && (
-              <button onClick={() => setCurrentView(VIEWS.SUBJECTS)} className={`px-3 py-1 border border-transparent transition-all ${currentView === VIEWS.SUBJECTS ? 'text-cyan-400 border-cyan-500/30 bg-cyan-900/10' : 'hover:text-white'}`}>ASIGNATURAS</button>
+              <button onClick={() => { setCurrentView(VIEWS.SUBJECTS); setMobileMenuOpen(false); }} className={`px-3 py-2 md:py-1 text-left md:text-center border border-transparent transition-all ${currentView === VIEWS.SUBJECTS ? 'text-cyan-400 border-cyan-500/30 bg-cyan-900/10' : 'hover:text-white'}`}>ASIGNATURAS</button>
             )}
           </nav>
         </div>
 
-        <div className="flex items-center gap-6 text-xs tracking-wider">
-          <div className="flex items-center gap-2">
+        {/* Status indicator and Admin controls */}
+        <div className={`flex-col md:flex-row items-start md:items-center gap-4 md:gap-6 text-xs tracking-wider pb-4 md:pb-0 border-t border-[#222]/80 md:border-0 pt-4 md:pt-0 md:flex ${mobileMenuOpen ? 'flex' : 'hidden'}`}>
+          <div className="flex items-center gap-2 px-3 md:px-0">
             <div className={`w-2 h-2 rounded-full ${isOffline ? 'bg-rose-500 shadow-[0_0_8px_#f43f5e]' : 'bg-emerald-500 shadow-[0_0_8px_#10b981] animate-pulse'}`}></div>
             <span className={isOffline ? 'text-rose-500' : 'text-emerald-500'}>{isOffline ? 'SYS_OFFLINE' : 'DB_ONLINE'}</span>
           </div>
 
           {/* ADMIN TOGGLE */}
-          <div className="flex items-center gap-3 border-l border-[#333] pl-6">
+          <div className="flex items-center justify-between w-full md:w-auto gap-3 border-t md:border-t-0 md:border-l border-[#222] md:border-[#333] pt-4 md:pt-0 md:pl-6 px-3 md:px-0">
             <span className={isAdmin ? 'text-cyan-400' : 'text-gray-500'}>
               {isAdmin ? 'ADMIN CONECTADO' : 'VISTA ESTUDIANTE'}
             </span>
             <button
-              onClick={toggleAdmin}
+              onClick={() => { toggleAdmin(); setMobileMenuOpen(false); }}
               className={`w-12 h-6 rounded-full p-1 transition-colors ${isAdmin ? 'bg-cyan-600' : 'bg-[#222]'}`}
             >
               <div className={`w-4 h-4 bg-white rounded-full transition-transform ${isAdmin ? 'translate-x-6' : 'translate-x-0'}`}></div>
@@ -484,16 +504,15 @@ export default function App() {
           </div>
         </div>
       </header>
-
       {/* MAIN CONTENT AREA */}
-      <main className="flex-1 flex overflow-hidden">
+      <main className="flex-1 flex flex-col md:flex-row overflow-y-auto md:overflow-hidden">
         {currentView === VIEWS.SCHEDULER && (
           <>
-            {/* SIDEBAR: SEMESTERS */}
-            <aside className="w-64 border-r border-[#222] bg-[#0d0d0d] flex flex-col shrink-0">
+            {/* SIDEBAR: SEMESTERS (Desktop only) */}
+            <aside className="hidden md:flex w-64 border-r border-[#222] bg-[#0d0d0d] flex-col shrink-0">
               <div className="p-4 border-b border-[#222]">
                 <div className="text-[10px] text-gray-500 tracking-widest mb-1">SELECTOR_CURSO</div>
-                <div className="text-xs text-emerald-500 flex items-center gap-1"><div className="w-1 h-1 bg-emerald-500 rounded-full"></div> REJILLA ACTIVA</div>
+                <div className="text-xs text-emerald-500 flex items-center gap-1"><div className="w-1.5 h-1.5 bg-emerald-500 rounded-full"></div> REJILLA ACTIVA</div>
               </div>
               <div className="flex-1 overflow-y-auto py-2">
                 {SEMESTERS.map(sem => (
@@ -515,15 +534,56 @@ export default function App() {
               </div>
             </aside>
 
+            {/* Mobile Semester Selector */}
+            <div className="md:hidden flex overflow-x-auto bg-[#0d0d0d] border-b border-[#222] p-2 gap-2 scrollbar-hide shrink-0">
+              {SEMESTERS.map(sem => (
+                <button
+                  key={sem}
+                  onClick={() => setSelectedSemester(sem)}
+                  className={`px-4 py-2 border transition-all text-xs tracking-widest whitespace-nowrap rounded-sm
+                    ${selectedSemester === sem
+                      ? 'border-cyan-500 bg-cyan-900/10 text-cyan-400 font-bold'
+                      : 'border-[#222] text-gray-500 hover:text-gray-300'}`}
+                >
+                  {YEAR_LABELS[sem]}
+                </button>
+              ))}
+            </div>
+
             {/* SCHEDULE GRID */}
-            <div className="flex-1 overflow-auto bg-[#0a0a0a] relative p-6">
-              <div className="min-w-[800px] h-full flex flex-col border border-[#222]">
+            <div className="flex-1 overflow-auto bg-[#0a0a0a] relative p-4 md:p-6 flex flex-col gap-4">
+              {/* Mobile Day Selector */}
+              <div className="md:hidden flex border border-[#222] bg-[#0d0d0d] p-1 gap-1 rounded-sm shrink-0">
+                {DAYS.map(day => (
+                  <button
+                    key={day.id}
+                    onClick={() => setActiveDayTab(day.id)}
+                    className={`flex-1 text-center py-2 text-[10px] tracking-wider transition-colors border rounded-sm font-bold
+                      ${activeDayTab === day.id
+                        ? 'bg-cyan-500 text-black border-cyan-500'
+                        : 'border-transparent text-gray-500 hover:text-white'}`}
+                  >
+                    {day.label}
+                  </button>
+                ))}
+                <button
+                  onClick={() => setActiveDayTab(-1)}
+                  className={`px-3 py-2 text-[10px] tracking-wider transition-colors border rounded-sm font-bold
+                    ${activeDayTab === -1
+                      ? 'bg-cyan-500 text-black border-cyan-500'
+                      : 'border-transparent text-gray-500 hover:text-white'}`}
+                >
+                  SEM
+                </button>
+              </div>
+
+              <div className={`h-full flex flex-col border border-[#222] bg-[#050505] rounded-sm ${activeDayTab === -1 ? 'min-w-[800px]' : 'min-w-0 w-full'}`}>
                 {/* HEADER (DAYS) */}
                 <div className="flex border-b border-[#222] bg-[#0d0d0d]">
                   <div className="w-16 shrink-0 border-r border-[#222] grid place-items-center">
                     <IconClock />
                   </div>
-                  {DAYS.map((day, idx) => (
+                  {DAYS.filter(day => activeDayTab === -1 || activeDayTab === day.id).map((day, idx) => (
                     <div key={day.id} className={`flex-1 text-center py-3 border-r border-[#222] last:border-0 ${day.id === new Date().getDay() - 1 ? 'text-emerald-500' : ''}`}>
                       <div className="font-bold text-sm tracking-widest">{day.label}</div>
                       <div className="text-[10px] opacity-50 mt-1">{getDayDateString(day.id)}</div>
@@ -552,8 +612,8 @@ export default function App() {
                     </div>
 
                     {/* Columns (Days) */}
-                    {DAYS.map(day => (
-                      <div key={day.id} className="flex-1 border-r border-[#222] relative group">
+                    {DAYS.filter(day => activeDayTab === -1 || activeDayTab === day.id).map(day => (
+                      <div key={day.id} className="flex-1 border-r border-[#222] relative group last:border-r-0">
                         {/* Interactive overlay for adding class */}
                         {isAdmin && (
                           <div
@@ -587,26 +647,25 @@ export default function App() {
                   </div>
                 </div>
               </div>
-
               {/* AI UPLINK TERMINAL */}
               {isAdmin && (
-                <div className="absolute bottom-6 left-1/2 -translate-x-1/2 w-[650px] z-20">
+                <div className="absolute bottom-6 left-4 right-4 md:left-1/2 md:-translate-x-1/2 md:w-[650px] z-20">
                   <form onSubmit={handleAiSubmit} className="flex bg-[#0d0d0d] border border-cyan-500/50 p-2 shadow-[0_0_20px_rgba(0,255,255,0.1)] tactical-corners backdrop-blur-md">
-                    <div className="flex items-center px-3 text-cyan-500 border-r border-[#333] opacity-80">
+                    <div className="flex items-center px-2 md:px-3 text-cyan-500 border-r border-[#333] opacity-80">
                       <IconSparkles />
                     </div>
                     <input
                       type="text"
                       value={aiInput}
                       onChange={(e) => setAiInput(e.target.value)}
-                      placeholder="Uplink IA: Ej. 'Cálculo Avanzado con Dr Vance el Jueves a las 11 en RM-104B'"
-                      className="flex-1 bg-transparent text-sm text-cyan-50 placeholder-cyan-900/50 px-4 outline-none font-mono"
+                      placeholder="Uplink IA: Ej. 'Cálculo con Vance el Jueves a las 11'"
+                      className="flex-1 bg-transparent text-xs md:text-sm text-cyan-50 placeholder-cyan-900/50 px-2 md:px-4 outline-none font-mono min-w-0"
                       disabled={isAiLoading}
                     />
                     <button
                       type="submit"
                       disabled={isAiLoading || !aiInput.trim()}
-                      className="px-6 py-2 bg-cyan-950/40 text-cyan-400 border border-cyan-500/30 hover:bg-cyan-900/60 text-xs font-bold tracking-widest disabled:opacity-50 transition-colors whitespace-nowrap"
+                      className="px-3 py-2 md:px-6 bg-cyan-950/40 text-cyan-400 border border-cyan-500/30 hover:bg-cyan-900/60 text-[10px] md:text-xs font-bold tracking-widest disabled:opacity-50 transition-colors whitespace-nowrap"
                     >
                       {isAiLoading ? 'PROCESANDO...' : '✨ EJECUTAR'}
                     </button>
@@ -618,7 +677,7 @@ export default function App() {
               {isAdmin && (
                 <button
                   onClick={() => setModalState({ isOpen: true, data: { day: 0, startMin: 0, duration: 45, semester: selectedSemester, color: 'cyan' } })}
-                  className="absolute bottom-10 right-10 w-14 h-14 bg-[#0d0d0d] border border-cyan-500 text-cyan-400 text-2xl grid place-items-center hover:bg-cyan-900/30 transition-colors shadow-[0_0_15px_rgba(0,255,255,0.2)] tactical-corners z-20"
+                  className="absolute bottom-24 right-4 md:bottom-10 md:right-10 w-12 h-12 md:w-14 md:h-14 bg-[#0d0d0d] border border-cyan-500 text-cyan-400 text-2xl grid place-items-center hover:bg-cyan-900/30 transition-colors shadow-[0_0_15px_rgba(0,255,255,0.2)] tactical-corners z-20"
                 >
                   +
                 </button>
@@ -665,7 +724,7 @@ export default function App() {
         />
       )}
 
-      {/* MODAL EDICIÓN PERSONAL */}
+      {/* MODAL EDICIÓN DOCENTES */}
       {teacherModalState.isOpen && (
         <TeacherModal
           data={teacherModalState.data}
@@ -730,7 +789,7 @@ function AuthModal({ isRegister, onClose, onToggleMode }) {
 
   return (
     <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="w-full max-w-sm bg-[#0d0d0d] border border-[#333] tactical-corners shadow-2xl p-6">
+      <div className="w-full max-w-sm bg-[#0d0d0d] border border-[#333] tactical-corners shadow-2xl p-6 max-h-[90vh] overflow-y-auto">
         <h2 className="text-cyan-400 font-bold tracking-widest text-lg mb-4 flex items-center gap-2">
           <IconLock /> {isRegister ? 'NUEVA CREDENCIAL' : 'AUTORIZACIÓN REQUERIDA'}
         </h2>
@@ -833,7 +892,7 @@ function ClassModal({ data, teachers, rooms, subjects = [], onClose, onSave, onD
 
   return (
     <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="w-full max-w-md bg-[#0d0d0d] border border-[#333] tactical-corners shadow-2xl">
+      <div className="w-full max-w-md bg-[#0d0d0d] border border-[#333] tactical-corners shadow-2xl max-h-[90vh] overflow-y-auto">
         <div className="p-4 border-b border-[#222] flex justify-between items-center bg-[#111]">
           <h2 className="text-cyan-400 font-bold tracking-widest text-sm flex items-center gap-2">
             <IconMapPin /> {formData.id ? 'MODIFICAR_SECUENCIA' : 'NUEVA_SECUENCIA'}
@@ -973,25 +1032,25 @@ function ClassModal({ data, teachers, rooms, subjects = [], onClose, onSave, onD
 
 function RoomsView({ rooms, isAdmin, onAddRoom, onEditRoom }) {
   return (
-    <div className="flex-1 p-8 bg-[#0a0a0a] overflow-auto relative">
-      <div className="flex justify-between items-start mb-8 border-b border-[#222] pb-6">
+    <div className="flex-1 p-4 md:p-8 bg-[#0a0a0a] overflow-auto relative">
+      <div className="flex flex-col gap-4 md:flex-row md:justify-between md:items-start mb-8 border-b border-[#222] pb-6">
         <div>
           <h2 className="text-2xl font-bold tracking-widest text-white mb-2">REGISTRO DE SALAS <span className="text-cyan-500 text-sm opacity-50">// INFRAESTRUCTURA</span></h2>
         </div>
-        <div className="flex gap-4">
-          <div className="border border-[#333] p-3 text-center min-w-32 bg-[#111]">
+        <div className="flex gap-4 w-full md:w-auto">
+          <div className="flex-1 md:flex-initial border border-[#333] p-3 text-center min-w-32 bg-[#111]">
             <div className="text-[10px] text-gray-500 tracking-widest mb-1">CAPACIDAD TOTAL</div>
             <div className="text-xl text-white font-bold">{rooms.reduce((acc, r) => acc + r.capacity, 0)}</div>
           </div>
-          <div className="border border-[#333] p-3 text-center min-w-32 bg-[#111]">
+          <div className="flex-1 md:flex-initial border border-[#333] p-3 text-center min-w-32 bg-[#111]">
             <div className="text-[10px] text-gray-500 tracking-widest mb-1">NODOS ACTIVOS</div>
             <div className="text-xl text-emerald-500 font-bold">{rooms.filter(r => r.status === 'ONLINE').length}</div>
           </div>
         </div>
       </div>
 
-      <div className="border border-[#222] rounded-sm overflow-hidden bg-[#111]">
-        <table className="w-full text-left text-sm">
+      <div className="border border-[#222] rounded-sm overflow-hidden bg-[#111] overflow-x-auto">
+        <table className="w-full text-left text-sm min-w-[600px]">
           <thead className="text-[10px] text-gray-500 tracking-widest border-b border-[#222] bg-[#0d0d0d]">
             <tr>
               <th className="p-4 font-normal">ID_REF</th>
@@ -1027,7 +1086,7 @@ function RoomsView({ rooms, isAdmin, onAddRoom, onEditRoom }) {
       {isAdmin && (
         <button
           onClick={onAddRoom}
-          className="absolute bottom-10 right-10 w-14 h-14 bg-[#0d0d0d] border border-cyan-500 text-cyan-400 text-2xl grid place-items-center hover:bg-cyan-900/30 transition-colors shadow-[0_0_15px_rgba(0,255,255,0.2)] tactical-corners z-20"
+          className="absolute bottom-6 right-6 md:bottom-10 md:right-10 w-12 h-12 md:w-14 md:h-14 bg-[#0d0d0d] border border-cyan-500 text-cyan-400 text-2xl grid place-items-center hover:bg-cyan-900/30 transition-colors shadow-[0_0_15px_rgba(0,255,255,0.2)] tactical-corners z-20"
         >
           +
         </button>
@@ -1045,7 +1104,7 @@ function RoomModal({ data, onClose, onSave, onDelete }) {
 
   return (
     <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="w-full max-w-md bg-[#0d0d0d] border border-[#333] tactical-corners shadow-2xl">
+      <div className="w-full max-w-md bg-[#0d0d0d] border border-[#333] tactical-corners shadow-2xl max-h-[90vh] overflow-y-auto">
         <div className="p-4 border-b border-[#222] flex justify-between items-center bg-[#111]">
           <h2 className="text-cyan-400 font-bold tracking-widest text-sm flex items-center gap-2">
             <IconMapPin /> {formData.id ? 'MODIFICAR_SALA' : 'NUEVA_SALA'}
@@ -1120,7 +1179,7 @@ function TeacherModal({ data, onClose, onSave, onDelete }) {
 
   return (
     <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="w-full max-w-md bg-[#0d0d0d] border border-[#333] tactical-corners shadow-2xl">
+      <div className="w-full max-w-md bg-[#0d0d0d] border border-[#333] tactical-corners shadow-2xl max-h-[90vh] overflow-y-auto">
         <div className="p-4 border-b border-[#222] flex justify-between items-center bg-[#111]">
           <h2 className="text-cyan-400 font-bold tracking-widest text-sm flex items-center gap-2">
             <IconUser /> {formData.id ? 'MODIFICAR_FICHA' : 'NUEVO_OPERADOR'}
@@ -1190,15 +1249,14 @@ function PersonnelView({ teachers, isAdmin, onAddTeacher, onEditTeacher }) {
       setDossier(response);
     } catch (err) { setDossier("ERROR_EN_ENLACE_DE_DATOS"); } finally { setIsGenerating(false); }
   };
-
   return (
-    <div className="flex-1 p-8 bg-[#0a0a0a] overflow-auto flex">
-      <div className="flex-1 pr-8 border-r border-[#222]">
+    <div className="flex-1 p-4 md:p-8 bg-[#0a0a0a] overflow-auto flex flex-col lg:flex-row gap-6 relative">
+      <div className="flex-1 lg:pr-6 lg:border-r border-[#222]">
         <div className="mb-8 border-b border-[#222] pb-6">
-          <h2 className="text-2xl font-bold tracking-widest text-white mb-2">NÓMINA DE PERSONAL <span className="text-cyan-500 text-sm opacity-50">// DATABASE v2.4</span></h2>
+          <h2 className="text-2xl font-bold tracking-widest text-white mb-2">NÓMINA DE DOCENTES <span className="text-cyan-500 text-sm opacity-50">// DATABASE v2.4</span></h2>
         </div>
-        <div className="border border-[#222] rounded-sm overflow-hidden bg-[#111]">
-          <table className="w-full text-left text-sm">
+        <div className="border border-[#222] rounded-sm overflow-hidden bg-[#111] overflow-x-auto">
+          <table className="w-full text-left text-sm min-w-[500px]">
             <thead className="text-[10px] text-gray-500 tracking-widest border-b border-[#222] bg-[#0d0d0d]">
               <tr><th className="p-4 font-normal">ID_TAG</th><th className="p-4 font-normal">NOMBRE OPERADOR</th><th className="p-4 font-normal">DEPARTAMENTO</th></tr>
             </thead>
@@ -1215,7 +1273,7 @@ function PersonnelView({ teachers, isAdmin, onAddTeacher, onEditTeacher }) {
         </div>
       </div>
 
-      <div className="w-80 pl-8 bg-[#0a0a0a] flex flex-col">
+      <div className="w-full lg:w-80 lg:pl-6 bg-[#0a0a0a] flex flex-col shrink-0 pb-16 lg:pb-0">
         <div className="text-[10px] text-gray-500 tracking-widest mb-4 border-b border-[#222] pb-2">EXPEDIENTE DEL OPERADOR</div>
         {selectedTeacher ? (
           <div className="flex flex-col gap-4">
@@ -1234,7 +1292,7 @@ function PersonnelView({ teachers, isAdmin, onAddTeacher, onEditTeacher }) {
                 📝 MODIFICAR FICHA
               </button>
             )}
-            {dossier && <div className="border border-[#222] p-4 bg-[#0d0d0d] text-xs leading-relaxed text-gray-400 overflow-auto max-h-[400px]"><div className="text-[10px] text-purple-500 mb-3 font-bold">NIVEL 4 // ACCESO CONCEDIDO</div>{dossier}</div>}
+            {dossier && <div className="border border-[#222] p-4 bg-[#0d0d0d] text-xs leading-relaxed text-gray-400 overflow-auto max-h-[300px]"><div className="text-[10px] text-purple-500 mb-3 font-bold">NIVEL 4 // ACCESO CONCEDIDO</div>{dossier}</div>}
           </div>
         ) : (
           <div className="border border-[#222] p-4 bg-[#111] opacity-50"><div className="text-xs text-center text-gray-600 mt-4">SELECCIONE UN OPERADOR</div></div>
@@ -1245,7 +1303,7 @@ function PersonnelView({ teachers, isAdmin, onAddTeacher, onEditTeacher }) {
       {isAdmin && (
         <button
           onClick={onAddTeacher}
-          className="absolute bottom-10 right-10 w-14 h-14 bg-[#0d0d0d] border border-cyan-500 text-cyan-400 text-2xl grid place-items-center hover:bg-cyan-900/30 transition-colors shadow-[0_0_15px_rgba(0,255,255,0.2)] tactical-corners z-20"
+          className="absolute bottom-6 right-6 md:bottom-10 md:right-10 w-12 h-12 md:w-14 md:h-14 bg-[#0d0d0d] border border-cyan-500 text-cyan-400 text-2xl grid place-items-center hover:bg-cyan-900/30 transition-colors shadow-[0_0_15px_rgba(0,255,255,0.2)] tactical-corners z-20"
         >
           +
         </button>
@@ -1256,21 +1314,21 @@ function PersonnelView({ teachers, isAdmin, onAddTeacher, onEditTeacher }) {
 
 function SubjectsView({ subjects, isAdmin, onAddSubject, onEditSubject }) {
   return (
-    <div className="flex-1 p-8 bg-[#0a0a0a] overflow-auto relative">
-      <div className="flex justify-between items-start mb-8 border-b border-[#222] pb-6">
+    <div className="flex-1 p-4 md:p-8 bg-[#0a0a0a] overflow-auto relative">
+      <div className="flex flex-col gap-4 md:flex-row md:justify-between md:items-start mb-8 border-b border-[#222] pb-6">
         <div>
           <h2 className="text-2xl font-bold tracking-widest text-white mb-2">GESTIÓN DE ASIGNATURAS <span className="text-cyan-500 text-sm opacity-50">// CURRÍCULUM</span></h2>
         </div>
-        <div className="flex gap-4">
-          <div className="border border-[#333] p-3 text-center min-w-32 bg-[#111]">
+        <div className="flex gap-4 w-full md:w-auto">
+          <div className="flex-1 md:flex-initial border border-[#333] p-3 text-center min-w-32 bg-[#111]">
             <div className="text-[10px] text-gray-500 tracking-widest mb-1">TOTAL ASIGNATURAS</div>
             <div className="text-xl text-white font-bold">{subjects.length}</div>
           </div>
         </div>
       </div>
 
-      <div className="border border-[#222] rounded-sm overflow-hidden bg-[#111]">
-        <table className="w-full text-left text-sm">
+      <div className="border border-[#222] rounded-sm overflow-hidden bg-[#111] overflow-x-auto">
+        <table className="w-full text-left text-sm min-w-[500px]">
           <thead className="text-[10px] text-gray-500 tracking-widest border-b border-[#222] bg-[#0d0d0d]">
             <tr>
               <th className="p-4 font-normal">CÓDIGO</th>
@@ -1292,7 +1350,7 @@ function SubjectsView({ subjects, isAdmin, onAddSubject, onEditSubject }) {
       {isAdmin && (
         <button
           onClick={onAddSubject}
-          className="absolute bottom-10 right-10 w-14 h-14 bg-[#0d0d0d] border border-cyan-500 text-cyan-400 text-2xl grid place-items-center hover:bg-cyan-900/30 transition-colors shadow-[0_0_15px_rgba(0,255,255,0.2)] tactical-corners z-20"
+          className="absolute bottom-6 right-6 md:bottom-10 md:right-10 w-12 h-12 md:w-14 md:h-14 bg-[#0d0d0d] border border-cyan-500 text-cyan-400 text-2xl grid place-items-center hover:bg-cyan-900/30 transition-colors shadow-[0_0_15px_rgba(0,255,255,0.2)] tactical-corners z-20"
         >
           +
         </button>
@@ -1310,7 +1368,7 @@ function SubjectModal({ data, onClose, onSave, onDelete }) {
 
   return (
     <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="w-full max-w-md bg-[#0d0d0d] border border-[#333] tactical-corners shadow-2xl">
+      <div className="w-full max-w-md bg-[#0d0d0d] border border-[#333] tactical-corners shadow-2xl max-h-[90vh] overflow-y-auto">
         <div className="p-4 border-b border-[#222] flex justify-between items-center bg-[#111]">
           <h2 className="text-cyan-400 font-bold tracking-widest text-sm flex items-center gap-2">
             <IconSparkles /> {formData.id ? 'MODIFICAR_ASIGNATURA' : 'NUEVA_ASIGNATURA'}
